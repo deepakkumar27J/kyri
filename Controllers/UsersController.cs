@@ -62,5 +62,23 @@ namespace kyri.Controllers
                 return Ok(User);
             }
         }
+
+        [HttpPost("user")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult User(LoginDto loginDTO)
+        {
+            var userObject = _dataContext.Users.FirstOrDefault(
+                x => x.Email == loginDTO.Email &&
+                x.Password == loginDTO.Password);
+            if (userObject == null)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return Ok(User);
+            }
+        }
     }
 }

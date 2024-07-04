@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("kyri")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cc446718f7b6ceccd2bae08d7fcd477ca6f63743")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+03844ba19891bb27579a32efabf0d4f271f0d76c")]
 [assembly: System.Reflection.AssemblyProductAttribute("kyri")]
 [assembly: System.Reflection.AssemblyTitleAttribute("kyri")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
