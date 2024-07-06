@@ -281,3 +281,4 @@ F:\Learning\ASPNET\Web\kyri\kyri\obj\Debug\net8.0\kyri.pdb
 F:\Learning\ASPNET\Web\kyri\kyri\obj\Debug\net8.0\kyri.genruntimeconfig.cache
 F:\Learning\ASPNET\Web\kyri\kyri\obj\Debug\net8.0\ref\kyri.dll
 F:\Learning\ASPNET\Web\kyri\kyri\bin\Debug\net8.0\AutoMapper.dll
+F:\Learning\ASPNET\Web\kyri\kyri\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

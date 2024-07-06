@@ -4,6 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using kyri.Model;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
+//using System.Web.Http;
 
 namespace kyri.Controllers
 {
@@ -12,10 +18,12 @@ namespace kyri.Controllers
     public class UsersController : ControllerBase
     {
         private readonly DataContext _dataContext;
+        private readonly IConfiguration _configuration;
         //private readonly IMapper _mapper;
-        public UsersController(DataContext dataContext)
+        public UsersController(DataContext dataContext, IConfiguration configuration)
         {
             _dataContext = dataContext;
+            _configuration = configuration;
             //_mapper = mapper;
 
         }
@@ -27,8 +35,8 @@ namespace kyri.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var userObject = _dataContext.Users.FirstOrDefault(x=>x.Email == userDTO.Email);
-            if (userObject==null)
+            var userObject = _dataContext.Users.FirstOrDefault(x => x.Email == userDTO.Email);
+            if (userObject == null)
             {
                 //var usernMap = _mapper.Map<User>(userDTO);
                 _dataContext.Users.Add(new User
@@ -40,7 +48,8 @@ namespace kyri.Controllers
                 });
                 _dataContext.SaveChanges();
                 return Ok("User Successfully created");
-            } else
+            }
+            else
             {
                 ModelState.AddModelError("", "Email already in use, sign in");
                 return StatusCode(500, ModelState);
@@ -54,23 +63,42 @@ namespace kyri.Controllers
             var userObject = _dataContext.Users.FirstOrDefault(
                 x => x.Email == loginDTO.Email &&
                 x.Password == loginDTO.Password);
-            if(userObject==null)
+            if (userObject == null)
             {
                 return NoContent();
-            } else
+            }
+            else
             {
-                return Ok(User);
+                var claims = new[]
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim("UserId", userObject.UserId.ToString()),
+                    new Claim("Email", userObject.Email.ToString())
+                };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                var signin = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var token = new JwtSecurityToken(
+                    _configuration["Jwt:Issuer"],
+                    _configuration["Jwt:Audience"],
+                    claims,
+                    expires: DateTime.UtcNow.AddMinutes(60),
+                    signingCredentials: signin);
+                string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
+                return Ok(new { Token = tokenValue, User = userObject });
+                //return Ok(User);
             }
         }
 
-        [HttpPost("user")]
+        [Authorize]
+        [HttpGet("GetUser")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult User(LoginDto loginDTO)
+        public IActionResult GetUser(int id)
         {
             var userObject = _dataContext.Users.FirstOrDefault(
-                x => x.Email == loginDTO.Email &&
-                x.Password == loginDTO.Password);
+                x => x.UserId == id);
             if (userObject == null)
             {
                 return NoContent();
@@ -79,6 +107,7 @@ namespace kyri.Controllers
             {
                 return Ok(User);
             }
+
         }
     }
 }
